@@ -18,6 +18,7 @@ void gpioInit()
 	GPIO_PinModeSet(LED0_port, LED0_pin, gpioModePushPull, false);
 	GPIO_DriveStrengthSet(LED1_port, gpioDriveStrengthWeakAlternateWeak);
 	GPIO_PinModeSet(LED1_port, LED1_pin, gpioModePushPull, false);
+	GPIO_PinModeSet(button_port,button_pin,gpioModeInputPullFilter,1);
 }
 
 void gpioLed0SetOn()
@@ -37,4 +38,21 @@ void gpioLed1SetOn()
 void gpioLed1SetOff()
 {
 	GPIO_PinOutClear(LED1_port,LED1_pin);
+}
+
+void gpioEnableDisplay()
+{
+GPIO_PinModeSet(LCD_PORT,LCD_PIN,gpioModePushPull,false);
+}
+
+void gpioSetDisplayExtcomin(bool high)
+{
+	if(high)
+	{
+		GPIO_PinOutSet(LCD_PORT,LCD_PIN);
+	}
+	else
+	{
+		GPIO_PinOutClear(LCD_PORT,LCD_PIN);
+	}
 }

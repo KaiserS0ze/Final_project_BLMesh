@@ -1,5 +1,5 @@
 protocol/bluetooth/bt_mesh/src/bg_application_properties.o: \
  ../protocol/bluetooth/bt_mesh/src/bg_application_properties.c \
- C:\Users\nachi\SimplicityStudio\v4_workspace\soc-btmesh-light_2\platform\bootloader\api/application_properties.h
+ /home/abhijeet/iot/SimplicityStudio-v4/SimplicityStudio_v4/assignment/assignment10-KaiserS0ze/platform/bootloader/api/application_properties.h
 
-C:\Users\nachi\SimplicityStudio\v4_workspace\soc-btmesh-light_2\platform\bootloader\api/application_properties.h:
+/home/abhijeet/iot/SimplicityStudio-v4/SimplicityStudio_v4/assignment/assignment10-KaiserS0ze/platform/bootloader/api/application_properties.h:

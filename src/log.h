@@ -9,6 +9,8 @@
 #define SRC_LOG_H_
 #include "stdio.h"
 #include <inttypes.h>
+#include "sleep.h"
+#include "clock_init.h"
 
 /**
  * Instructions for using this module:
@@ -32,6 +34,9 @@
  *       before the #include "log.h" reference.
  *   * To turn on for all files #define INCLUDE_LOG_DEBUG 1 in the project configuration.
  */
+
+extern const SLEEP_EnergyMode_t EM_Select;
+
 #ifndef LOG_ERROR
 #define LOG_ERROR(message,...) \
 	LOG_DO(message,"Error", ##__VA_ARGS__)
