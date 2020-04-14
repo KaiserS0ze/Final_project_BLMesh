@@ -84,6 +84,22 @@ static void client_server_request(uint16_t model_id,
 		  displayPrintf(DISPLAY_ROW_TEMPVALUE,"%s","BUTTON RELEASED");
 	}
 }
+static void onoff_change(uint16_t model_id,
+                         uint16_t element_index,
+                         const struct mesh_generic_state *current,
+                         const struct mesh_generic_state *target,
+                         uint32_t remaining_ms)
+{
+LOG_WARN("  Inside onoff function  ");
+}
+static void onoff_recall(uint16_t model_id,
+                         uint16_t element_index,
+                         const struct mesh_generic_state *current,
+                         const struct mesh_generic_state *target,
+                         uint32_t transition_ms)
+{
+	LOG_WARN("  Inside onoff recall  ");
+}
 void gecko_bgapi_classes_init_server_friend(void)
 {
   gecko_bgapi_class_dfu_init();
@@ -200,11 +216,10 @@ void gecko_bgapi_classes_init_client_lpn(void)
  ******************************************************************************/
 void handle_ecen5823_gecko_event(uint32_t evt_id, struct gecko_cmd_packet *evt)
 {
-	//struct mesh_generic_request req;
-	//struct mesh_generic_state current;
+
 	uint16_t result;
 	static uint8_t trid=0;
-	//struct gecko_msg_mesh_node_initialized_evt_t *pData;
+
 	char buf[30];
   if (NULL == evt) {
     return;
@@ -212,7 +227,7 @@ void handle_ecen5823_gecko_event(uint32_t evt_id, struct gecko_cmd_packet *evt)
 
   switch (evt_id) {
     case gecko_evt_system_boot_id:
-    	if (GPIO_PinInGet(button_port,button_pin) == 0)
+    if (GPIO_PinInGet(button_port,button_pin) == 0 || GPIO_PinInGet(button_one_port,button_one_pin) == 0)
     {
 
 	      LOG_DEBUG("factory reset push button\r\n");
@@ -227,36 +242,22 @@ void handle_ecen5823_gecko_event(uint32_t evt_id, struct gecko_cmd_packet *evt)
     		LOG_DEBUG("getting device name\r\n");
 
     			    	  struct gecko_msg_system_get_bt_address_rsp_t *pAddr = gecko_cmd_system_get_bt_address();
-    			    	  //set device name for publisher
     			    	  if(evt->data.evt_mesh_node_initialized.provisioned && DeviceIsOnOffPublisher())
     			    	  {
     			    		  set_device_name_Publisher(&pAddr->address);
     			    	  }
-    			    	  //set device name for subscriber
     			    	  if(evt->data.evt_mesh_node_initialized.provisioned && DeviceIsOnOffSubscriber())
     			    	  {
     			    		  set_device_name_Subscriber(&pAddr->address);
 
     			    	  }
-
     			          result = gecko_cmd_mesh_node_init()->result;
     			      	  if(result)
     			      	  {
     			      		  sprintf(buf, "init failed (0x%x)", result);
-
     			      	  }
     	}
 
-//    	if(result)
-//    	{
-//
-//    	}
-//    	struct gecko_msg_system_get_bt_address_rsp_t *pAddr = gecko_cmd_system_get_bt_address();
-//    		    	  //set device name for publisher
-//    	if(evt->data.evt_mesh_node_initialized.provisioned)
-//    	{
-//    		  	 set_device_name(&pAddr->address);
-//    	}
 #if DEVICE_IS_ONOFF_PUBLISHER
     	displayPrintf(DISPLAY_ROW_NAME,"Publisher");
 #else
@@ -269,54 +270,33 @@ void handle_ecen5823_gecko_event(uint32_t evt_id, struct gecko_cmd_packet *evt)
       break;
 
     case gecko_evt_mesh_node_initialized_id:
-//    	gecko_cmd_mesh_generic_server_init();
-//    	gecko_cmd_mesh_generic_client_init();
-//    	if(result)
-//    	{
-//    	   LOG_INFO("\n\r Result Failed");
-//    	}
-
 
     	if(evt->data.evt_mesh_node_initialized.provisioned && DeviceUsesClientModel())
     	{
-    		LOG_INFO("\n\r Client Initialization");
+    		LOG_INFO("\n\r Client Init");
     		gecko_cmd_mesh_generic_client_init();
     	}
     	if(evt->data.evt_mesh_node_initialized.provisioned && DeviceUsesServerModel())
     	{
-    		LOG_INFO("\n\r Server Initialization");
+    		LOG_INFO("\n\r Server Init");
     		gecko_cmd_mesh_generic_server_init();
     	}
     	if(evt->data.evt_mesh_node_initialized.provisioned && DeviceIsOnOffPublisher())
     	{
-    		LOG_INFO("\n\r Mesh Lib Init 8");
     		mesh_lib_init(malloc,free,8);
     	}
     	if(evt->data.evt_mesh_node_initialized.provisioned && DeviceIsOnOffSubscriber())
     	{
-    		LOG_INFO("\n\r Mesh Lib Init 9");
     		mesh_lib_init(malloc,free,9);
-    		mesh_lib_generic_server_register_handler(MESH_GENERIC_ON_OFF_SERVER_MODEL_ID,0,client_server_request,NULL,NULL);
-    					//mesh_lib_generic_server_update();
+    		mesh_lib_generic_server_register_handler(MESH_GENERIC_ON_OFF_SERVER_MODEL_ID,0,client_server_request,0,0);
     		mesh_lib_generic_server_publish(MESH_GENERIC_ON_OFF_SERVER_MODEL_ID,0,mesh_generic_state_on_off);
-    		//mesh_lib_generic_server_register_handler(MESH_GENERIC_ON_OFF_SERVER_MODEL_ID,0,mesh_lib_generic_server_event_handler,mesh_lib_generic_server_event_handler,mesh_lib_generic_server_event_handler);
-    		//mesh_lib_generic_server_update();
-    		//mesh_lib_generic_server_publish();
-    		//MESH_GENERIC_ON_OFF_CLIENT_MODEL_ID;
-    		//MESH_GENERIC_ON_OFF_SERVER_MODEL_ID;
+
     	}
-//    	if(!evt->data.evt_mesh_node_initialized.provisioned)
-//    	{
-//    	  gecko_cmd_mesh_node_start_unprov_beaconing(0x3);   // enable ADV and GATT provisioning bearer
-//    	  displayPrintf(DISPLAY_ROW_ACTION,"Unprovisioned");
-//    	}
     	struct gecko_msg_mesh_node_initialized_evt_t *pData = (struct gecko_msg_mesh_node_initialized_evt_t *)&(evt->data);
     	if (pData->provisioned)
     	{
     		    	LOG_INFO("node is provisioned. address:%x, ivi:%ld\r\n", pData->address, pData->ivi);
- //   		        _my_address = pData->address;
-    		        _elem_index = 0;   // index of primary element is zero. This example has only one element.
-    		         //display on LCD
+    		        _elem_index = 0;
     	}
     	else
     	{
@@ -373,13 +353,11 @@ void handle_ecen5823_gecko_event(uint32_t evt_id, struct gecko_cmd_packet *evt)
     	break;
 
     case gecko_evt_mesh_node_reset_id:
-    	//check if connection is closed before factory reset, if not then close it.
-    	    	if (conn_handle != 0xFF)
-    	    	 {
-    	          gecko_cmd_le_connection_close(conn_handle);
-    	    	 }
-    	    	 gecko_cmd_flash_ps_erase_all();
-    	    	 //.gecko_cmd_hardware_set_soft_timer(2 * 32768, TIMER_ID_FACTORY_RESET, 1);
+    	 if (conn_handle != 0xFF)
+    	 {
+    	    gecko_cmd_le_connection_close(conn_handle);
+    	 }
+    	    gecko_cmd_flash_ps_erase_all();
     	break;
 
     case gecko_evt_le_connection_closed_id:
@@ -407,8 +385,6 @@ void handle_ecen5823_gecko_event(uint32_t evt_id, struct gecko_cmd_packet *evt)
       break;
 
     case gecko_evt_system_external_signal_id:
-    	//flag=1;
-
     	if(Gpio_flag == 1)
     	{
     	Gpio_flag =0;
@@ -436,12 +412,7 @@ void handle_ecen5823_gecko_event(uint32_t evt_id, struct gecko_cmd_packet *evt)
 		    	 LOG_INFO("request sent, trid = %u, delay = %d\r\n", trid, delay);
 		     }
     	}
-//		     if (request_count > 0)
-//		     {
-//		    	 request_count--;
-//		     }
 		break;
   }
 }
-/** @} (end addtogroup app) */
-/** @} (end addtogroup Application) */
+

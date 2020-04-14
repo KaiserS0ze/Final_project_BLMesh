@@ -16,6 +16,8 @@
  *
  ******************************************************************************/
 
+// Reference: BT MESH LIGHT MESH EXAMPLE, BT MESH SWITCH EXAMPLE
+
 /* Board headers */
 #include "init_mcu.h"
 #include "init_board.h"
@@ -214,14 +216,7 @@ int main(void)
   gecko_initCoexHAL();
 
   while (1) {
-	  /*if(BL_Flag == 1)
-	  {
-	    //BL_Flag = 0 in the stop state
-		button_press = GPIO_PinInGet(button_port,button_pin);
-		//LOG_DEBUG("\n\n---->while(1) button value = %d<-----\n\n",button_press);
-		displayUpdate();
-	    state_machine(signal,pre_scalar);
-	  }*/
+
 	struct gecko_cmd_packet *evt = gecko_wait_event();
     bool pass = mesh_bgapi_listener(evt);
     if (pass) {
@@ -237,8 +232,7 @@ void LETIMER0_IRQHandler(void)
 	{
 		LETIMER_CounterSet(LETIMER0,65535);
 		BL_Flag = 1;
-  		//states = sI2C_Init;
-  		//events = eStart;
+
 		gecko_external_signal(gecko_evt_system_external_signal_id);
 		secs = secs + 3000;
 	}
@@ -247,49 +241,5 @@ void LETIMER0_IRQHandler(void)
 		gecko_external_signal(gecko_evt_system_awake_id);
 	}
 	LETIMER_IntClear(LETIMER0,0x07);
-	//gecko_external_signal(gecko_evt_system_awake_id);
-}
-
-void I2C0_IRQHandler(void)
-{
-	CORE_ATOMIC_IRQ_DISABLE();
-	volatile I2C_TransferReturn_TypeDef I2C_status;
-	I2C_status = I2C_Transfer(I2C0);
-
-	//LOG_INFO("I2C STATUS = %d\n\r",I2C_status);
-
-	if(I2C_status != i2cTransferInProgress)
-	{
-		if(I2C_status == 0 )
-		{
-			LOG_INFO("0 success\n\r");
-			read_state = 1;
-			write_state = 1;
-		}
-		else if(I2C_status == -1)
-		{
-			LOG_WARN("NACK\n\r");
-
-		}
-		else if(I2C_status == -2)
-		{
-			LOG_WARN("BUS ERROR\n\r");
-		}
-		else if(I2C_status == -3)
-		{
-			LOG_WARN("ARB LOST\n\r");
-		}
-		else if(I2C_status == -4)
-		{
-			LOG_WARN("USAGE FAULT\n\r");
-		}
-		else
-		{
-			LOG_ERROR("UNKNOWN CONDITION\n\r");
-		}
-	}
-
-	CORE_ATOMIC_IRQ_ENABLE();
-	//NVIC_DisableIRQ(I2C0_IRQn);
 
 }

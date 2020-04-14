@@ -19,6 +19,7 @@ void gpioInit()
 	GPIO_DriveStrengthSet(LED1_port, gpioDriveStrengthWeakAlternateWeak);
 	GPIO_PinModeSet(LED1_port, LED1_pin, gpioModePushPull, false);
 	GPIO_PinModeSet(button_port,button_pin,gpioModeInputPullFilter,1);
+	GPIO_PinModeSet(button_one_port,button_one_pin,gpioModeInputPullFilter,1);
 }
 
 void gpioLed0SetOn()

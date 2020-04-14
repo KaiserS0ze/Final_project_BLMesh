@@ -17,6 +17,8 @@
 #define LCD_PIN 13
 #define button_port 5
 #define button_pin 6
+#define button_one_pin 7
+#define button_one_port 5
 
 #define GPIO_SET_DISPLAY_EXT_COMIN_IMPLEMENTED 	1
 #define GPIO_DISPLAY_SUPPORT_IMPLEMENTED		1
